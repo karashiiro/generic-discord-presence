@@ -1,0 +1,30 @@
+{
+	"name": "generic-discord-presence",
+	"version": "1.0.0",
+	"description": "Discord Rich Presence everywhere!",
+	"main": "index.js",
+	"scripts": {
+		"start": "node .",
+		"build": "tsc",
+		"format": "prettier --write \"src/**/*.+(js|jsx|ts|tsx|json|css|md)\"",
+		"lint": "tslint -p tsconfig.json",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "karashiiro",
+	"license": "MIT",
+	"dependencies": {
+		"@arcsine/win-info": "^0.1.2",
+		"@types/discord-rpc": "^3.0.4",
+		"@types/lodash.flatten": "^4.4.6",
+		"@types/node": "^14.10.0",
+		"discord-rpc": "^3.1.3",
+		"lodash.flatten": "^4.4.0",
+		"ps-list": "^7.2.0",
+		"typescript": "^4.0.2"
+	},
+	"devDependencies": {
+		"prettier": "^2.1.1",
+		"tslint": "^6.1.3",
+		"tslint-config-prettier": "^1.18.0"
+	}
+}
