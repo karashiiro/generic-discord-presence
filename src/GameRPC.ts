@@ -52,7 +52,7 @@ export class GameRPC {
 		client.on("ready", async () => {
 			while (!this.shouldStop) {
 				client.setActivity(this.presence);
-				await sleep(3000); // Locked by the API to 15 seconds, but we set it lower so it feels more responsive
+				await sleep(1000); // Locked by the API to 15 seconds, but we set it lower so it feels more responsive
 			}
 			this.running = false;
 		});

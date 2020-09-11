@@ -2,9 +2,9 @@
 const { Plugin } = require("powercord/entities");
 const { getModule } = require("powercord/webpack");
 const { Logger } = require("./build/Logger");
-const { main } = require("./build/generic-discord-presence");
+const { main } = require("./build/generic-discord-rich-presence");
 
-module.exports = class GenericDiscordPresence extends Plugin {
+module.exports = class GenericDiscordRichPresence extends Plugin {
 	async startPlugin() {
 		const { getActivities } = await getModule(["getActivities"]);
 		const { getCurrentUser } = await getModule(["getCurrentUser"]);

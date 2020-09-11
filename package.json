@@ -1,5 +1,5 @@
 {
-	"name": "generic-discord-presence",
+	"name": "generic-discord-rich-presence",
 	"version": "1.0.0",
 	"description": "Discord Rich Presence everywhere!",
 	"main": "index.js",
