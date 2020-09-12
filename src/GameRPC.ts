@@ -1,7 +1,6 @@
 import { Client, Presence } from "discord-rpc";
-import { GameInfo, getReadableState } from "./game";
 import { Logger } from "./Logger";
-import { sleep } from "./sleep";
+import { GameInfo, getReadableState, sleep } from "./util";
 
 export class GameRPC {
 	private startTimestamp: Date;

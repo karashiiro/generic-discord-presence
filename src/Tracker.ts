@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { sleep } from "./sleep";
+import { sleep } from "./util";
 
 export class Tracker<TReturn> extends EventEmitter {
 	private running: boolean;

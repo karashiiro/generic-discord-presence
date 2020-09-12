@@ -1,6 +1,6 @@
 import * as winInfo from "@arcsine/win-info";
 import psList from "ps-list";
-import { WINDOW_ALIASES } from "./data/WINDOW_ALIASES";
+import { WINDOW_ALIASES } from "../data/WINDOW_ALIASES";
 
 export async function isFocused(pid: number): Promise<boolean> {
 	const activeWindow = await winInfo.getActive();
