@@ -67,7 +67,7 @@ export class GameRPC {
 			state: getReadableState(this.gameInfo),
 			startTimestamp: this.startTimestamp,
 			largeImageKey: "game-controller",
-			largeImageText: "hi yes hello",
+			largeImageText: this.gameInfo.name,
 			smallImageText: "dummy",
 			instance: false,
 		};
