@@ -1,6 +1,6 @@
 {
 	"name": "Generic Discord Rich Presence",
-	"description": "Get a Rich Presence status even in games that don't support it.",
+	"description": "Get a Rich Presence status even in games that don't support it",
 	"author": "karashiiro",
 	"version": "1.0.0",
 	"license": "MIT"
