@@ -68,7 +68,8 @@ export class GameRPC {
 			startTimestamp: this.startTimestamp,
 			largeImageKey: "game-controller",
 			largeImageText: this.gameInfo.name,
-			smallImageText: "dummy",
+			smallImageKey: "play-button",
+			smallImageText: this.gameInfo.name,
 			instance: false,
 		};
 	}
