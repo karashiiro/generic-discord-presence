@@ -57,7 +57,9 @@ export async function main(
 		Logger.log("Got new Steam rich presence state", presence.richPresence);
 	});
 
-	const activity = new Tracker<DetailedGameInfo>(getCurrentGame, UPDATE_INTERVAL);
+	const activity = new Tracker<DetailedGameInfo | null>(async () => {
+		return await getCurrentGame(rpc?.clientId, gameInfo?.name);
+	}, UPDATE_INTERVAL);
 
 	activity.on("changed", async (dgi) => {
 		if (rpc != null) {
@@ -66,6 +68,8 @@ export async function main(
 			gameState.stop();
 
 			rpc.stop();
+
+			Logger.log("Rich presence stopped.");
 		}
 
 		if (dgi == null) {

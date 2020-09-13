@@ -6,10 +6,9 @@ import { Logger } from "./Logger";
 import { sleep } from "./util";
 
 export class GameRPC {
-	private startTimestamp: Date;
+	public readonly clientId: string;
 
 	private gameInfo: GameInfo;
-	private clientId: string;
 
 	private client: Client | undefined;
 
@@ -17,7 +16,6 @@ export class GameRPC {
 	private shouldStop: boolean;
 
 	constructor(gameInfo: GameInfo, clientId: string) {
-		this.startTimestamp = new Date();
 		this.gameInfo = gameInfo;
 
 		this.clientId = clientId;
@@ -69,7 +67,7 @@ export class GameRPC {
 			return {
 				details: this.gameInfo.rpState || getReadableState(this.gameInfo),
 				state: this.gameInfo.rpState == null ? undefined : getReadableState(this.gameInfo),
-				startTimestamp: this.startTimestamp,
+				startTimestamp: this.gameInfo.startTime,
 				largeImageKey: "game-controller",
 				smallImageKey: "play-button",
 				instance: false,
@@ -78,7 +76,7 @@ export class GameRPC {
 		return {
 			details: this.gameInfo.rpState || getReadableState(this.gameInfo),
 			state: this.gameInfo.rpState == null ? undefined : getReadableState(this.gameInfo),
-			startTimestamp: this.startTimestamp,
+			startTimestamp: this.gameInfo.startTime,
 			largeImageKey: (await getApplicationIcon(this.clientId)) || undefined,
 			instance: false,
 		};

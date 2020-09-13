@@ -3,6 +3,7 @@ import { Logger } from "./Logger";
 export interface GameInfo {
 	pid: number;
 	name: string;
+	startTime: Date;
 	state: GameState;
 	rpState: string | null | undefined;
 }
@@ -11,6 +12,7 @@ export async function buildGameInfo(detailedGameInfo: DetailedGameInfo): Promise
 	return {
 		pid: detailedGameInfo.pid,
 		name: detailedGameInfo.name,
+		startTime: new Date(detailedGameInfo.start),
 		state: "IDLE",
 		rpState: null,
 	};
@@ -51,4 +53,6 @@ export interface DetailedGameInfo {
 
 export type GameState = "IN_GAME" | "IDLE";
 
-export type GetCurrentGame = () => DetailedGameInfo;
+export type GetCurrentGame =
+	| ((currApplicationId: string, name: string) => Promise<DetailedGameInfo | null>)
+	| ((currApplicationId: string, name: string) => DetailedGameInfo | null);
