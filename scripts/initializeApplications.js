@@ -97,6 +97,7 @@ async function initializeApplications() {
 			);
 		} catch (err) {
 			console.error("Critical error!", err);
+			await writeFile("dictionary.txt", JSON.stringify(dic));
 			return;
 		}
 		console.log("Created object successfully with ID:", createRes.body.id);
@@ -121,6 +122,7 @@ async function initializeApplications() {
 			await closeLarge();
 		} catch (err) {
 			console.error("Critical error!", err);
+			await writeFile("dictionary.txt", JSON.stringify(dic));
 			return;
 		}
 		console.log("Uploaded large image successfully.");
@@ -143,6 +145,7 @@ async function initializeApplications() {
 				await closeSmall();
 			} catch (err) {
 				console.error("Critical error!", err);
+				await writeFile("dictionary.txt", JSON.stringify(dic));
 				return;
 			}
 			console.log("Uploaded small image successfully.");
