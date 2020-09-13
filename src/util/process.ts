@@ -10,10 +10,10 @@ export async function isFocused(pid: number): Promise<boolean> {
 		targetWindow = await winInfo.getByPid(pid);
 	} catch (err) {
 		Logger.debug(
-			"Window detection failed. This is likely normal, and means your game is running in fullscreen mode. Error message:",
+			"Window detection failed. This is probably normal, and means your game is unfocused and running in fullscreen mode. Error message:",
 			err,
 		);
-		return true;
+		return false;
 	}
 	return activeWindow.id === targetWindow.id;
 }
