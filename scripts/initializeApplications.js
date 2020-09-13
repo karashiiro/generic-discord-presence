@@ -65,7 +65,7 @@ async function initializeApplications() {
 	const gamesList = JSON.parse(
 		(
 			await get(
-				"https://gist.githubusercontent.com/Cynosphere/c1e77f77f0e565ddaac2822977961e76/raw/52d1f2d31be7168a0486a3a355e06a2d751bdc44/gameslist.json",
+				"https://gist.githubusercontent.com/DeadSix27/b8e377c9fed6d98bff22dcdf8807e207/raw/52d1f2d31be7168a0486a3a355e06a2d751bdc44/gameslist.json",
 			)
 		).raw.toString(),
 	).filter((game) => !existing.includes(game.name));
