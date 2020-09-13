@@ -69,7 +69,7 @@ export async function main(
 
 			rpc.stop();
 
-			Logger.log("Rich presence stopped.");
+			Logger.log("Rich Presence stopped.");
 		}
 
 		if (dgi == null) {
