@@ -1,37 +1,12 @@
-import * as winInfo from "@arcsine/win-info";
-import psList from "ps-list";
-import { WINDOW_ALIASES } from "../data/WINDOW_ALIASES";
+import activeWin, { LinuxResult, MacOSResult, WindowsResult } from "active-win";
 
+// Discord does have an isFocused function, but it's unclear what its parameter is.
 export async function isFocused(pid: number): Promise<boolean> {
-	const activeWindow = await winInfo.getActive();
-	const targetWindow = await winInfo.getByPid(pid);
-	return activeWindow.id === targetWindow.id;
-}
-
-export async function getPidOfWindow(name: string, retries: number = 0): Promise<number> {
-	const processes = await psList();
-
-	for (const process of processes) {
-		let processWindowName: string;
-		try {
-			processWindowName = await getWindowByPid(process.pid);
-		} catch {
-			continue;
-		}
-
-		const aliases = WINDOW_ALIASES.find((wa) => wa.name === name)?.aliases || [];
-
-		if ([name, ...aliases].includes(processWindowName)) {
-			return process.pid;
-		}
+	let activeWindow: MacOSResult | LinuxResult | WindowsResult | undefined;
+	try {
+		activeWindow = await activeWin();
+	} catch {
+		return false;
 	}
-
-	if (retries > 0) {
-		return getPidOfWindow(name, retries--);
-	}
-	return 0;
-}
-
-export async function getWindowByPid(pid: number): Promise<string> {
-	return (await winInfo.getByPid(pid)).title;
+	return activeWindow?.owner.processId === pid;
 }

@@ -1,27 +1,22 @@
 /* eslint-disable */
 const { Plugin } = require("powercord/entities");
 const { getModule } = require("powercord/webpack");
+const { get } = require("powercord/http");
+const { sleep } = require("powercord/util");
+
+const { Http } = require("./build/Http");
 const { Logger } = require("./build/Logger");
 const { main } = require("./build/generic-discord-rich-presence");
 
 module.exports = class GenericDiscordRichPresence extends Plugin {
 	async startPlugin() {
-		const { getActivities } = await getModule(["getActivities"]);
 		const { getCurrentUser } = await getModule(["getCurrentUser"]);
+		const { getToken } = await getModule(["getToken"]);
+		const { getCurrentGame } = await getModule(["getCurrentGame", "getGameForPID"]);
 
-		let getCurrentGame = () => {
-			const user = getCurrentUser();
-			if (user == null) return ""; // user can be null on initialization
-
-			// Don't include custom statuses or games that already have Rich Presence.
-			const activities = getActivities(user.id).filter(
-				(activity) => activity.type !== 4 && !activity.assets && !activity.state,
-			);
-
-			const { name } = activities[0] || { name: "" };
-
-			return name;
-		};
+		Http.initialize({
+			get: (url) => get(url).execute(),
+		});
 
 		Logger.initialize({
 			self: this,
@@ -31,6 +26,23 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			error: this.error,
 		});
 
-		main(getCurrentGame);
+		const getAllConnections = async () => {
+			let user;
+			while (!(user = getCurrentUser())) {
+				await sleep(1000);
+			}
+			const { id } = user;
+			return (
+				await get(`https://canary.discordapp.com/api/v8/users/${id}/profile`)
+					.set("authorization", getToken())
+					.execute()
+			).body.connected_accounts;
+		};
+
+		this.closePlugin = await main(getCurrentGame, getAllConnections);
+	}
+
+	pluginWillUnload() {
+		this.closePlugin();
 	}
 };

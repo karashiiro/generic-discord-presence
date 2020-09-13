@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import isEqual from "lodash.isequal";
 import { sleep } from "./util";
 
 export class Tracker<TReturn> extends EventEmitter {
@@ -24,6 +25,7 @@ export class Tracker<TReturn> extends EventEmitter {
 	}
 
 	start() {
+		this.shouldStop = false;
 		this.scan();
 	}
 
@@ -38,7 +40,7 @@ export class Tracker<TReturn> extends EventEmitter {
 		while (!this.shouldStop) {
 			const newState = await this.getState();
 
-			if (this.currentState !== newState) {
+			if (!isEqual(this.currentState, newState)) {
 				this.emit("changed", newState);
 				this.currentState = newState;
 			}

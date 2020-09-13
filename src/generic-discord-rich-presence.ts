@@ -1,16 +1,93 @@
+import { CLIENT_ID } from "./client-id";
+import { AccountConnection, GetAllConnections } from "./discord";
+import { buildGameInfo, DetailedGameInfo, GameInfo, GameState, GetCurrentGame } from "./game";
 import { GameRPC } from "./GameRPC";
 import { Logger } from "./Logger";
+import { GameDetails, getProfileInfo } from "./steam";
 import { Tracker } from "./Tracker";
-import { GameInfo, GameState, GetCurrentGame, getGameInfo, isFocused } from "./util";
+import { isFocused } from "./util";
 
-const CLIENT_ID = "753747786725457971";
 const UPDATE_INTERVAL = 15000;
 
-export function main(getCurrentGame: GetCurrentGame) {
+export async function main(
+	getCurrentGame: GetCurrentGame,
+	getAllConnections: GetAllConnections,
+): Promise<PluginCloseHandle> {
 	let rpc: GameRPC;
 	let gameInfo: GameInfo;
+	let steamInfo: AccountConnection | null | undefined;
 
-	const activity = new Tracker<string>(getCurrentGame, UPDATE_INTERVAL);
+	let applicationId: string;
+
+	const steam = new Tracker<AccountConnection | null | undefined>(async () => {
+		const connections = await getAllConnections();
+		return connections.find((c) => c.type === "steam");
+	}, UPDATE_INTERVAL);
+
+	steam.on("changed", (newSteamInfo) => {
+		if (newSteamInfo == null) {
+			steamInfo = null;
+			return;
+		}
+
+		steamInfo = newSteamInfo;
+
+		Logger.log("Connected to Steam account", steamInfo?.name);
+	});
+
+	const steamPresence = new Tracker<GameDetails | null | undefined>(async () => {
+		if (steamInfo == null) return null;
+
+		const profileInfo = await getProfileInfo(steamInfo.id);
+		if (profileInfo == null) return null;
+
+		Logger.log(profileInfo);
+
+		return profileInfo.game;
+	}, UPDATE_INTERVAL);
+
+	steamPresence.on("changed", (presence) => {
+		if (presence == null) {
+			gameInfo.rpState = null;
+			return;
+		}
+
+		gameInfo.rpState = presence?.richPresence;
+
+		Logger.log("Got new Steam rich presence state", presence.richPresence);
+	});
+
+	const activity = new Tracker<DetailedGameInfo>(getCurrentGame, UPDATE_INTERVAL);
+
+	activity.on("changed", async (dgi) => {
+		if (rpc != null) {
+			steam.stop();
+			steamPresence.stop();
+			gameState.stop();
+
+			rpc.stop();
+		}
+
+		if (dgi == null) {
+			return;
+		}
+
+		applicationId = dgi.id;
+
+		Logger.log(dgi);
+
+		gameInfo = await buildGameInfo(dgi);
+
+		Logger.log("Found game", gameInfo.pid, gameInfo.name);
+
+		steam.start();
+		steamPresence.start();
+		gameState.start();
+
+		rpc = new GameRPC(gameInfo, applicationId || CLIENT_ID);
+		rpc.start();
+	});
+
 	const gameState = new Tracker<GameState>(async () => {
 		if (gameInfo == null) {
 			return "IDLE";
@@ -23,23 +100,6 @@ export function main(getCurrentGame: GetCurrentGame) {
 		return "IDLE";
 	}, UPDATE_INTERVAL);
 
-	activity.on("changed", async (gameTitle) => {
-		if (rpc != null) {
-			rpc.stop();
-		}
-
-		if (gameTitle === "") {
-			return;
-		}
-
-		gameInfo = await getGameInfo(gameTitle);
-
-		Logger.log("Found game", gameInfo.pid, gameInfo.name);
-
-		rpc = new GameRPC(gameInfo, CLIENT_ID);
-		rpc.start();
-	});
-
 	gameState.on("changed", (state) => {
 		if (gameInfo != null) {
 			gameInfo.state = state;
@@ -48,5 +108,14 @@ export function main(getCurrentGame: GetCurrentGame) {
 	});
 
 	activity.start();
-	gameState.start();
+
+	return () => {
+		steam?.stop();
+		steamPresence?.stop();
+		activity?.stop();
+		gameState?.stop();
+		rpc?.stop();
+	};
 }
+
+export type PluginCloseHandle = () => void;
