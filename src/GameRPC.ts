@@ -78,7 +78,7 @@ export class GameRPC {
 			};
 		}
 		return {
-			details: this.gameInfo.rpState || this.gameInfo.name,
+			details: this.gameInfo.name,
 			state: getReadableState(this.gameInfo),
 			startTimestamp: this.startTimestamp,
 			largeImageKey: (await getApplicationIcon(this.clientId)) || undefined,

@@ -18,8 +18,6 @@ export async function getProfileInfo(userId: string): Promise<BasicProfileInfo |
 	const resMiniProfile = await Http.get(`https://steamcommunity.com/miniprofile/${miniProfileId}`);
 	const miniProfile = cheerio.load(resMiniProfile.body as string | Buffer);
 
-	Logger.log(miniProfile.html());
-
 	const basicProfileInfo: BasicProfileInfo = {
 		name: miniProfile(".persona").text(),
 		status: getStatusFromClassName(miniProfile(".persona").attr("class")!.split(" ")[1]),
