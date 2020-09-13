@@ -17,10 +17,6 @@ export async function buildGameInfo(detailedGameInfo: DetailedGameInfo): Promise
 }
 
 export function getReadableState(gameInfo: GameInfo): string {
-	if (gameInfo.rpState != null) {
-		return gameInfo.rpState;
-	}
-
 	switch (gameInfo.state) {
 		case "IDLE":
 			return "Idle";

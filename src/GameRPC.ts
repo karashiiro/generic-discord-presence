@@ -67,19 +67,17 @@ export class GameRPC {
 	private async getPresence(): Promise<Presence> {
 		if (this.clientId === CLIENT_ID) {
 			return {
-				details: this.gameInfo.name,
-				state: getReadableState(this.gameInfo),
+				details: this.gameInfo.rpState || getReadableState(this.gameInfo),
+				state: this.gameInfo.rpState == null ? undefined : getReadableState(this.gameInfo),
 				startTimestamp: this.startTimestamp,
 				largeImageKey: "game-controller",
-				largeImageText: this.gameInfo.rpState || this.gameInfo.name,
 				smallImageKey: "play-button",
-				smallImageText: this.gameInfo.name,
 				instance: false,
 			};
 		}
 		return {
-			details: this.gameInfo.name,
-			state: getReadableState(this.gameInfo),
+			details: this.gameInfo.rpState || getReadableState(this.gameInfo),
+			state: this.gameInfo.rpState == null ? undefined : getReadableState(this.gameInfo),
 			startTimestamp: this.startTimestamp,
 			largeImageKey: (await getApplicationIcon(this.clientId)) || undefined,
 			instance: false,
