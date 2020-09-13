@@ -109,7 +109,7 @@ async function initializeApplications() {
 		// The rate limiting on these endpoints is really harsh; they aren't
 		// supposed to be used for automation at all. Exceeding the rate limit
 		// will bust you for 3 hours (10800 seconds).
-		await sleep(20000);
+		await sleep(30000);
 
 		console.log("Uploading large image for object", name);
 		try {
@@ -131,7 +131,7 @@ async function initializeApplications() {
 		}
 		console.log("Uploaded large image successfully.");
 
-		await sleep(20000);
+		await sleep(30000);
 
 		if (smallImageKey != null) {
 			console.log("Uploading small image for object", name);
@@ -154,7 +154,7 @@ async function initializeApplications() {
 			}
 			console.log("Uploaded small image successfully.");
 
-			await sleep(20000);
+			await sleep(30000);
 		}
 
 		dic[id] = applicationId;
