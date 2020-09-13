@@ -23,10 +23,15 @@ interface ApplicationAsset {
 }
 
 export interface AccountConnection {
-	type: string; // enum but lazy
+	friend_sync: boolean;
 	id: string;
+	integrations: any[];
 	name: string;
+	revoked: boolean;
+	show_activity: boolean;
+	type: string; // enum but lazy
 	verified: boolean;
+	visibility: number;
 }
 
 export type GetAllConnections = () => Promise<AccountConnection[]>;

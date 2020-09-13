@@ -4,7 +4,7 @@ Discord Rich Presence everywhere!
 ## Features
  * Attention status based on game window focus
  * Second-precision playtime
- * Steam profile scraping to provide more details for games launched through Steam (requires connecting your Steam account and making both your connection and playing status public)
+ * Steam profile scraping to provide more details for games launched through Steam (requires connecting your Steam account and making your playing status public; the connection itself can stay hidden)
 
 ## Installation
 Clone the repo down to your plugins folder, and then just

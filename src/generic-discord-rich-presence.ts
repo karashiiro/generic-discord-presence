@@ -3,7 +3,7 @@ import { AccountConnection, GetAllConnections } from "./discord";
 import { buildGameInfo, DetailedGameInfo, GameInfo, GameState, GetCurrentGame } from "./game";
 import { GameRPC } from "./GameRPC";
 import { Logger } from "./Logger";
-import { BasicProfileInfo, GameDetails, getProfileInfo } from "./steam";
+import { GameDetails, getProfileInfo } from "./steam";
 import { Tracker } from "./Tracker";
 import { isFocused } from "./util";
 

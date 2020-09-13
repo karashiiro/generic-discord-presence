@@ -39,13 +39,13 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		};
 
 		const getAllConnections = async () => {
-			const { id } = await getCurrentUserId();
+			await getCurrentUserId(); // We don't need the return value, just want to be sure we're logged-in.
 
 			return (
-				await get(`https://canary.discordapp.com/api/v8/users/${id}/profile`)
+				await get(`https://canary.discordapp.com/api/v8/users/@me/connections`)
 					.set("authorization", getToken())
 					.execute()
-			).body.connected_accounts;
+			).body;
 		};
 
 		Http.initialize({
