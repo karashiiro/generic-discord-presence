@@ -28,6 +28,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			// Don't include custom statuses
 			const activities = getActivities(id).filter((activity) => activity.type !== 4);
 
+			// Die if Rich Presence is already enabled from another application
 			if (
 				activities.length === 0 ||
 				activities.some((a) => a.name === name && a.application_id !== currApplicationId)

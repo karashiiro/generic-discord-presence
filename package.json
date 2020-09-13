@@ -7,7 +7,7 @@
 		"start": "node .",
 		"build": "tsc",
 		"build:prod": "tsc -p tsconfig.prod.json",
-		"rptime": "npm i --only=prod && npm run build:prod",
+		"rptime": "npm i --only=prod && npm run build:prod && echo Installed successfully! Please reload your plugins.",
 		"format": "prettier --write \"src/**/*.+(js|jsx|ts|tsx|json|css|md)\"",
 		"lint": "tslint -p tsconfig.json",
 		"test": "echo \"Error: no test specified\" && exit 1"

@@ -50,6 +50,9 @@ export async function main(
 
 			return profileInfo.game;
 		} catch (err) {
+			// The only reasons why this would fail are Steam's community servers
+			// going down, being unable to reach them, and the website layout changing
+			// significantly.
 			Logger.error("Presence fetch failed with error message:", err);
 		}
 	}, UPDATE_INTERVAL);
@@ -90,6 +93,9 @@ export async function main(
 		steamPresence.start();
 		gameState.start();
 
+		// I have some application ID overrides in APPLICATION_DIRECTORY, which have assets uploaded.
+		// The official application entries usually don't have any assets if they don't already have
+		// Rich Presence configured for their respective games.
 		rpc = new GameRPC(gameInfo, APPLICATION_DIRECTORY[applicationId] || applicationId || CLIENT_ID);
 		rpc.start();
 	});
