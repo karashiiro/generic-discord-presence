@@ -38,7 +38,8 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		};
 
 		const getAllConnections = async () => {
-			await getCurrentUserAsync(); // We don't need the return value, just want to be sure we're logged-in so we have a token.
+			// We don't need the return value, just want to be sure we're logged-in so we have a token.
+			await getCurrentUserAsync();
 
 			// There's a Discord function that does this somewhere, but I simply can't find it.
 			return (
