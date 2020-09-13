@@ -8,6 +8,7 @@ const webp = require("webp-converter");
 const GenericRequest = require("../../../../fake_node_modules/powercord/http/GenericRequest");
 const { sleep } = require("../../../../fake_node_modules/powercord/util");
 
+const readFile = util.promisify(fs.readFile);
 const unlink = util.promisify(fs.unlink);
 const writeFile = util.promisify(fs.writeFile);
 
@@ -25,13 +26,6 @@ function post(url, data, contentType) {
 		.execute();
 }
 
-async function getApplications() {
-	const res = await new GenericRequest("GET", "https://discord.com/api/v8/applications")
-		.set("Authorization", USER_TOKEN)
-		.execute();
-	return res.body.map((o) => o.name);
-}
-
 async function discordWebpToPngBase64(applicationId, key) {
 	const url = `https://cdn.discordapp.com/app-icons/${applicationId}/${key}.webp?size=1024&keep_aspect_ratio=false`;
 
@@ -46,21 +40,14 @@ async function discordWebpToPngBase64(applicationId, key) {
 	return new Promise((resolve) => {
 		jimp.read(newFileName, (_, jImage) => {
 			jImage.resize(1024, 1024).write(newFileName, () => {
-				resolve([
-					base64Img.base64Sync(newFileName),
-					async () => {
-						await unlink(newFileName);
-					},
-				]);
+				resolve([base64Img.base64Sync(newFileName), () => unlink(newFileName)]);
 			});
 		});
 	});
 }
 
 async function initializeApplications() {
-	const dic = {};
-
-	const existing = await getApplications();
+	const dic = fs.existsSync("dictionary.txt") ? JSON.parse(await readFile("dictionary.txt")) : {};
 
 	const gamesList = JSON.parse(
 		(
@@ -68,7 +55,8 @@ async function initializeApplications() {
 				"https://gist.githubusercontent.com/DeadSix27/b8e377c9fed6d98bff22dcdf8807e207/raw/52d1f2d31be7168a0486a3a355e06a2d751bdc44/gameslist.json",
 			)
 		).raw.toString(),
-	).filter((game) => !existing.includes(game.name));
+	).filter((game) => !Object.keys(dic).includes(game.id));
+	console.log(gamesList.length, "applications to initialize.");
 
 	for (const game of gamesList) {
 		const { id, name, icon, splash } = game;
@@ -109,7 +97,7 @@ async function initializeApplications() {
 		// The rate limiting on these endpoints is really harsh; they aren't
 		// supposed to be used for automation at all. Exceeding the rate limit
 		// will bust you for 3 hours (10800 seconds).
-		await sleep(30000);
+		await sleep(60000);
 
 		console.log("Uploading large image for object", name);
 		try {
@@ -131,7 +119,7 @@ async function initializeApplications() {
 		}
 		console.log("Uploaded large image successfully.");
 
-		await sleep(30000);
+		await sleep(60000);
 
 		if (smallImageKey != null) {
 			console.log("Uploading small image for object", name);
@@ -154,7 +142,7 @@ async function initializeApplications() {
 			}
 			console.log("Uploaded small image successfully.");
 
-			await sleep(30000);
+			await sleep(60000);
 		}
 
 		dic[id] = applicationId;
