@@ -41,7 +41,7 @@ export async function main(
 		const profileInfo = await getProfileInfo(steamInfo.id);
 		if (profileInfo == null) return null;
 
-		Logger.log(profileInfo);
+		Logger.debug(profileInfo);
 
 		return profileInfo.game;
 	}, UPDATE_INTERVAL);
@@ -74,7 +74,7 @@ export async function main(
 
 		applicationId = dgi.id;
 
-		Logger.log(dgi);
+		Logger.debug(dgi);
 
 		gameInfo = await buildGameInfo(dgi);
 
