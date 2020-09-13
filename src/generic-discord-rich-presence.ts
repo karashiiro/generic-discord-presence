@@ -3,7 +3,7 @@ import { AccountConnection, GetAllConnections } from "./discord";
 import { buildGameInfo, DetailedGameInfo, GameInfo, GameState, GetCurrentGame } from "./game";
 import { GameRPC } from "./GameRPC";
 import { Logger } from "./Logger";
-import { GameDetails, getProfileInfo } from "./steam";
+import { BasicProfileInfo, GameDetails, getProfileInfo } from "./steam";
 import { Tracker } from "./Tracker";
 import { isFocused } from "./util";
 
@@ -23,7 +23,6 @@ export async function main(
 		const connections = await getAllConnections();
 		return connections.find((c) => c.type === "steam");
 	}, UPDATE_INTERVAL);
-
 	steam.on("changed", (newSteamInfo) => {
 		if (newSteamInfo == null) {
 			steamInfo = null;
@@ -31,21 +30,23 @@ export async function main(
 		}
 
 		steamInfo = newSteamInfo;
-
 		Logger.log("Connected to Steam account", steamInfo?.name);
 	});
 
 	const steamPresence = new Tracker<GameDetails | null | undefined>(async () => {
 		if (steamInfo == null) return null;
 
-		const profileInfo = await getProfileInfo(steamInfo.id);
-		if (profileInfo == null) return null;
+		try {
+			const profileInfo = await getProfileInfo(steamInfo.id);
+			if (profileInfo == null) return null;
 
-		Logger.debug(profileInfo);
+			Logger.debug(profileInfo);
 
-		return profileInfo.game;
+			return profileInfo.game;
+		} catch (err) {
+			Logger.error("Presence fetch failed with error message:", err);
+		}
 	}, UPDATE_INTERVAL);
-
 	steamPresence.on("changed", (presence) => {
 		if (presence == null) {
 			gameInfo.rpState = null;
@@ -60,7 +61,6 @@ export async function main(
 	const activity = new Tracker<DetailedGameInfo | null>(async () => {
 		return await getCurrentGame(rpc?.clientId, gameInfo?.name);
 	}, UPDATE_INTERVAL);
-
 	activity.on("changed", async (dgi) => {
 		if (rpc != null) {
 			steam.stop();
@@ -72,16 +72,12 @@ export async function main(
 			Logger.log("Rich Presence stopped.");
 		}
 
-		if (dgi == null) {
-			return;
-		}
+		if (dgi == null) return;
 
 		applicationId = dgi.id;
-
 		Logger.debug(dgi);
 
 		gameInfo = await buildGameInfo(dgi);
-
 		Logger.log("Found game", gameInfo.pid, gameInfo.name);
 
 		steam.start();
@@ -103,7 +99,6 @@ export async function main(
 
 		return "IDLE";
 	}, UPDATE_INTERVAL);
-
 	gameState.on("changed", (state) => {
 		if (gameInfo != null) {
 			gameInfo.state = state;
