@@ -1,18 +1,22 @@
-import { Http } from "./Http";
+import { Http } from "./service";
 
 import mem from "mem";
 
 export const getApplicationIcon = mem(_getApplicationIcon);
 
-async function _getApplicationIcon(applicationId: string): Promise<string | null> {
-	const res = await Http.get(
-		`https://discordapp.com/api/oauth2/applications/${applicationId}/assets`,
-	);
-	const arr: ApplicationAsset[] = JSON.parse(res.raw.toString());
+async function _getApplicationIcon(
+	applicationId: string,
+): Promise<[largeImageKey: string | null, smallImageKey: string | null]> {
+	const assets: ApplicationAsset[] = (
+		await Http.get(`https://discordapp.com/api/oauth2/applications/${applicationId}/assets`)
+	).body as any[];
 	try {
-		return arr[0].name;
+		return [
+			assets.find((asset) => asset.name === "large")?.name || null,
+			assets.find((asset) => asset.name === "small")?.name || null,
+		];
 	} catch {
-		return null;
+		return [null, null];
 	}
 }
 

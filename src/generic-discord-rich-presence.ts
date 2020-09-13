@@ -1,11 +1,17 @@
-import { CLIENT_ID } from "./client-id";
+import { APPLICATION_DIRECTORY, CLIENT_ID } from "./data";
 import { AccountConnection, GetAllConnections } from "./discord";
-import { buildGameInfo, DetailedGameInfo, GameInfo, GameState, GetCurrentGame } from "./game";
 import { GameRPC } from "./GameRPC";
-import { Logger } from "./Logger";
+import { Logger } from "./service";
 import { GameDetails, getProfileInfo } from "./steam";
 import { Tracker } from "./Tracker";
-import { isFocused } from "./util";
+import {
+	buildGameInfo,
+	DetailedGameInfo,
+	GameInfo,
+	GameState,
+	GetCurrentGame,
+	isFocused,
+} from "./util";
 
 const UPDATE_INTERVAL = 15000;
 
@@ -84,7 +90,7 @@ export async function main(
 		steamPresence.start();
 		gameState.start();
 
-		rpc = new GameRPC(gameInfo, applicationId || CLIENT_ID);
+		rpc = new GameRPC(gameInfo, APPLICATION_DIRECTORY[applicationId] || applicationId || CLIENT_ID);
 		rpc.start();
 	});
 
@@ -109,9 +115,9 @@ export async function main(
 	activity.start();
 
 	return () => {
+		activity?.stop();
 		steam?.stop();
 		steamPresence?.stop();
-		activity?.stop();
 		gameState?.stop();
 		rpc?.stop();
 	};

@@ -1,9 +1,6 @@
-import { Client, Presence } from "discord-rpc";
-import { CLIENT_ID } from "./client-id";
-import { getApplicationIcon } from "./discord";
-import { GameInfo, getReadableState } from "./game";
-import { Logger } from "./Logger";
-import { sleep } from "./util";
+import { Client } from "discord-rpc";
+import { Logger } from "./service";
+import { GameInfo, getPresence, sleep } from "./util";
 
 export class GameRPC {
 	public readonly clientId: string;
@@ -51,7 +48,7 @@ export class GameRPC {
 
 		client.on("ready", async () => {
 			while (!this.shouldStop) {
-				client.setActivity(await this.getPresence());
+				client.setActivity(await getPresence(this.gameInfo, this.clientId));
 				await sleep(3000); // Locked by the API to 15 seconds, but we set it lower so it feels more responsive
 			}
 			this.running = false;
@@ -60,25 +57,5 @@ export class GameRPC {
 		client.login({ clientId: this.clientId }).catch(Logger.error);
 
 		return client;
-	}
-
-	private async getPresence(): Promise<Presence> {
-		if (this.clientId === CLIENT_ID) {
-			return {
-				details: this.gameInfo.rpState || getReadableState(this.gameInfo),
-				state: this.gameInfo.rpState == null ? undefined : getReadableState(this.gameInfo),
-				startTimestamp: this.gameInfo.startTime,
-				largeImageKey: "game-controller",
-				smallImageKey: "play-button",
-				instance: false,
-			};
-		}
-		return {
-			details: this.gameInfo.rpState || getReadableState(this.gameInfo),
-			state: this.gameInfo.rpState == null ? undefined : getReadableState(this.gameInfo),
-			startTimestamp: this.gameInfo.startTime,
-			largeImageKey: (await getApplicationIcon(this.clientId)) || undefined,
-			instance: false,
-		};
 	}
 }

@@ -3,6 +3,10 @@ export class Http {
 		return Http.sInstance.methods!.get(url);
 	}
 
+	public static post(url: string, data: string, contentType: string): Promise<HTTPResponse> {
+		return Http.sInstance.methods!.post(url, data, contentType);
+	}
+
 	public static initialize(methods: HttpMethods) {
 		Http.instance().methods = methods;
 	}
@@ -20,9 +24,11 @@ export class Http {
 
 export type HTTPGet = (url: string) => Promise<HTTPResponse>;
 
+export type HTTPPost = (url: string, data: string, contentType: string) => Promise<HTTPResponse>;
+
 export interface HTTPResponse {
 	raw: string | Buffer;
-	body: { [key: string]: any } | string | Buffer;
+	body: { [key: string]: any } | any[] | string | Buffer;
 	ok: boolean;
 	statusCode: number;
 	statusText: string;
@@ -31,4 +37,5 @@ export interface HTTPResponse {
 
 interface HttpMethods {
 	get: HTTPGet;
+	post: HTTPPost;
 }

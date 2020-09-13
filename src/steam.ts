@@ -1,6 +1,5 @@
 import cheerio from "cheerio";
-import { Http } from "./Http";
-import { Logger } from "./Logger";
+import { Http } from "./service";
 
 // Ideally we'd read this from the client memory, but it only seems to be stored in the
 // friends list, which is a separate process from the main client and not always available.

@@ -1,4 +1,7 @@
-import { Logger } from "./Logger";
+import { Presence } from "discord-rpc";
+import { CLIENT_ID } from "../data";
+import { getApplicationIcon } from "../discord";
+import { Logger } from "../service";
 
 export interface GameInfo {
 	pid: number;
@@ -28,6 +31,29 @@ export function getReadableState(gameInfo: GameInfo): string {
 			Logger.error("Invalid game state received!");
 			return "Idle";
 	}
+}
+
+export async function getPresence(gameInfo: GameInfo, clientId: string): Promise<Presence> {
+	if (clientId === CLIENT_ID) {
+		return {
+			details: gameInfo.rpState || getReadableState(gameInfo),
+			state: gameInfo.rpState == null ? undefined : getReadableState(gameInfo),
+			startTimestamp: gameInfo.startTime,
+			largeImageKey: "game-controller",
+			smallImageKey: "play-button",
+			instance: false,
+		};
+	}
+
+	const [largeImageKey, smallImageKey] = await getApplicationIcon(clientId);
+	return {
+		details: gameInfo.rpState || getReadableState(gameInfo),
+		state: gameInfo.rpState == null ? undefined : getReadableState(gameInfo),
+		startTimestamp: gameInfo.startTime,
+		largeImageKey: largeImageKey || undefined,
+		smallImageKey: smallImageKey || undefined,
+		instance: false,
+	};
 }
 
 export interface DetailedGameInfo {

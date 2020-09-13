@@ -1,5 +1,5 @@
 import * as winInfo from "@arcsine/win-info";
-import { Logger } from "../Logger";
+import { Logger } from "../service";
 
 // Discord does have an isFocused function, but it's unclear what its parameter is.
 export async function isFocused(pid: number): Promise<boolean> {

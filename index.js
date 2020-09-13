@@ -1,11 +1,10 @@
 /* eslint-disable */
 const { Plugin } = require("powercord/entities");
 const { getModule } = require("powercord/webpack");
-const { get } = require("powercord/http");
+const { get, post } = require("powercord/http");
 const { sleep } = require("powercord/util");
 
-const { Http } = require("./build/Http");
-const { Logger } = require("./build/Logger");
+const { Http, Logger } = require("./build/service");
 const { main } = require("./build/generic-discord-rich-presence");
 
 module.exports = class GenericDiscordRichPresence extends Plugin {
@@ -15,7 +14,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		const { getCurrentGame } = await getModule(["getCurrentGame", "getGameForPID"]);
 		const { getToken } = await getModule(["getToken"]);
 
-		const getCurrentUserId = async () => {
+		const getCurrentUserAsync = async () => {
 			let user;
 			while (!(user = getCurrentUser())) {
 				await sleep(1000);
@@ -24,9 +23,9 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		};
 
 		const getCurrentUntouchedGame = async (currApplicationId, name) => {
-			const { id } = await getCurrentUserId();
+			const { id } = await getCurrentUserAsync();
 
-			// Don't include custom statuses or games that already have Rich Presence.
+			// Don't include custom statuses
 			const activities = getActivities(id).filter((activity) => activity.type !== 4);
 
 			if (
@@ -39,8 +38,9 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		};
 
 		const getAllConnections = async () => {
-			await getCurrentUserId(); // We don't need the return value, just want to be sure we're logged-in.
+			await getCurrentUserAsync(); // We don't need the return value, just want to be sure we're logged-in so we have a token.
 
+			// There's a Discord function that does this somewhere, but I simply can't find it.
 			return (
 				await get(`https://canary.discordapp.com/api/v8/users/@me/connections`)
 					.set("authorization", getToken())
@@ -50,6 +50,8 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 
 		Http.initialize({
 			get: (url) => get(url).execute(),
+			post: (url, data, contentType) =>
+				post(url).set("Content-Type", contentType).send(data).execute(),
 		});
 
 		Logger.initialize({
