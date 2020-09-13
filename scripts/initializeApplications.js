@@ -1,5 +1,5 @@
 /* eslint-disable */
-const imageToBase64 = require("image-to-base64");
+const base64Img = require("base64-img");
 const fs = require("fs");
 const jimp = require("jimp");
 const tmp = require("tmp");
@@ -39,20 +39,22 @@ async function discordWebpToPngBase64(applicationId, key) {
 	await writeFile(fileHandle.name, (await get(url)).raw);
 
 	const newFileName = fileHandle.name + ".png";
-	await webp.dwebp(fileHandle.name, newFileName, "-o");
+	console.log(await webp.dwebp(fileHandle.name, newFileName, "-o"));
 
 	fileHandle.removeCallback();
 
-	const jImage = await jimp.read(newFileName);
-	await jImage.resize(1024, 1024);
-	await jImage.write(newFileName);
-
-	return [
-		await imageToBase64(newFileName),
-		async () => {
-			await unlink(newFileName);
-		},
-	];
+	return new Promise((resolve) => {
+		jimp.read(newFileName, (_, jImage) => {
+			jImage.resize(1024, 1024).write(newFileName, () => {
+				resolve([
+					base64Img.base64Sync(newFileName),
+					async () => {
+						await unlink(newFileName);
+					},
+				]);
+			});
+		});
+	});
 }
 
 async function initializeApplications() {
@@ -102,6 +104,8 @@ async function initializeApplications() {
 		}
 		console.log("Created object successfully with ID:", createRes.body.id);
 
+		const applicationId = createRes.body.id;
+
 		// The rate limiting on these endpoints is really harsh; they aren't
 		// supposed to be used for automation at all. Exceeding the rate limit
 		// will bust you for 3 hours (10800 seconds).
@@ -110,9 +114,9 @@ async function initializeApplications() {
 		console.log("Uploading large image for object", name);
 		try {
 			await post(
-				`https://discord.com/api/v8/applications/${applicationId}/assets`,
+				`https://discord.com/api/v8/oauth2/applications/${applicationId}/assets`,
 				{
-					image: `data:image/png;base64,${b64Large}`,
+					image: b64Large,
 					name: "large",
 					type: "1",
 				},
@@ -133,9 +137,9 @@ async function initializeApplications() {
 			console.log("Uploading small image for object", name);
 			try {
 				await post(
-					`https://discord.com/api/v8/applications/${applicationId}/assets`,
+					`https://discord.com/api/v8/oauth2/applications/${applicationId}/assets`,
 					{
-						image: `data:image/png;base64,${b64Small}`,
+						image: b64Small,
 						name: "small",
 						type: "1",
 					},
@@ -153,7 +157,7 @@ async function initializeApplications() {
 			await sleep(20000);
 		}
 
-		dic[id] = createRes.body.id;
+		dic[id] = applicationId;
 	}
 
 	await writeFile("dictionary.txt", JSON.stringify(dic));
