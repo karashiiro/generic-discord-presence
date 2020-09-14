@@ -1,12 +1,12 @@
 import { LoDashStatic } from "lodash";
 
-export class LoDashHost {
-	public static get _() {
-		return LoDashHost.lodash!;
+export class _ {
+	public static get static() {
+		return _.lodash!;
 	}
 
 	public static initialize(lodash: LoDashStatic) {
-		LoDashHost.lodash = lodash;
+		_.lodash = lodash;
 	}
 
 	private static lodash: LoDashStatic | undefined;

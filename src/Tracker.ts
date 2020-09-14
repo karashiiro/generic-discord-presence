@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { LoDashHost } from "./service";
+import { _ } from "./service";
 import { sleep } from "./util";
 
 export class Tracker<TReturn> extends EventEmitter {
@@ -40,7 +40,7 @@ export class Tracker<TReturn> extends EventEmitter {
 		while (!this.shouldStop) {
 			const newState = await this.getState();
 
-			if (!LoDashHost._.isEqual(this.currentState, newState)) {
+			if (!_.static.isEqual(this.currentState, newState)) {
 				this.emit("changed", newState);
 				this.currentState = newState;
 			}

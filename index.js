@@ -5,7 +5,7 @@ const { get, post } = require("powercord/http");
 const { sleep } = require("powercord/util");
 
 const { Settings } = require("./components/Settings");
-const { Http, Logger, LoDashHost } = require("./build/service");
+const { Http, Logger, _ } = require("./build/service");
 const { main } = require("./build/generic-discord-rich-presence");
 
 module.exports = class GenericDiscordRichPresence extends Plugin {
@@ -14,7 +14,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		const { getCurrentUser } = await getModule(["getCurrentUser"]);
 		const { getCurrentGame } = await getModule(["getCurrentGame", "getGameForPID"]);
 		const { getToken } = await getModule(["getToken"]);
-		const _ = await getModule(["add", "chunk", "isEqual"]);
+		const lodash = await getModule(["add", "chunk", "isEqual"]);
 
 		powercord.api.settings.registerSettings("generic-discord-rich-presence", {
 			category: this.entityID,
@@ -78,13 +78,13 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			).body;
 		};
 
+		_.initialize(lodash);
+
 		Http.initialize({
 			get: (url) => get(url).execute(),
 			post: (url, data, contentType) =>
 				post(url).set("Content-Type", contentType).send(data).execute(),
 		});
-
-		LoDashHost.initialize(_);
 
 		Logger.initialize({
 			self: this,
