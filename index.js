@@ -1,6 +1,6 @@
 /* eslint-disable */
 const { Plugin } = require("powercord/entities");
-const { getModule } = require("powercord/webpack");
+const { getModule, getAllModules } = require("powercord/webpack");
 const { get, post } = require("powercord/http");
 const { sleep } = require("powercord/util");
 
@@ -32,6 +32,22 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			return user;
 		};
 
+		const search = /(fetch|get).*(connections)/gi;
+		const modules = getAllModules(
+			(module) =>
+				Object.keys(module).some((key) => key.match(search)) ||
+				(module.__proto__ && Object.keys(module.__proto__).some((key) => key.match(search))),
+		);
+		this.log(modules);
+		const thing = await getModule(["getAllConnections"]);
+		setInterval(async () => {
+			const { id } = await getCurrentUserAsync();
+
+			this.log(thing);
+			this.log(thing.getAllConnections(id));
+			this.log(await thing.getAllConnections(id));
+		}, 5000);
+
 		const getCurrentOkGame = async (currApplicationId, name) => {
 			if (!this.settings.get("rpEnabledAll", true)) return null;
 
@@ -53,7 +69,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			return currentGame;
 		};
 
-		const getAllConnections = async () => {
+		const _getAllConnections = async () => {
 			// We don't need the return value, just want to be sure we're logged-in so we have a token.
 			await getCurrentUserAsync();
 
@@ -79,7 +95,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			error: this.error,
 		});
 
-		this.closePlugin = await main(getCurrentOkGame, getAllConnections);
+		this.closePlugin = await main(getCurrentOkGame, _getAllConnections);
 	}
 
 	pluginWillUnload() {

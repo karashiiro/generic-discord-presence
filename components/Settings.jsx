@@ -1,8 +1,9 @@
 /* eslint-disable */
-const { React } = require("powercord/webpack");
+const {
+	React,
+	React: { useEffect, useState },
+} = require("powercord/webpack");
 const { SwitchItem } = require("powercord/components/settings");
-
-const { useEffect, useState } = React;
 
 /**
  * I would write this in TypeScript for consistency (wouldn't get Intellisense with

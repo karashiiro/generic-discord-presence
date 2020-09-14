@@ -1,4 +1,4 @@
-import { APPLICATION_DIRECTORY, CLIENT_ID } from "./data";
+import { CLIENT_ID } from "./data";
 import { AccountConnection, GetAllConnections } from "./discord";
 import { GameRPC } from "./GameRPC";
 import { Logger } from "./service";
@@ -95,10 +95,7 @@ export async function main(
 		steamPresence.start();
 		gameState.start();
 
-		// I have some application ID overrides in APPLICATION_DIRECTORY, which have assets uploaded.
-		// The official application entries usually don't have any assets if they don't already have
-		// Rich Presence configured for their respective games.
-		rpc = new GameRPC(gameInfo, APPLICATION_DIRECTORY[applicationId] || applicationId || CLIENT_ID);
+		rpc = new GameRPC(gameInfo, applicationId || CLIENT_ID);
 		rpc.start();
 	});
 

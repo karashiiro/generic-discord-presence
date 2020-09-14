@@ -11,10 +11,7 @@ async function _getApplicationIcon(
 		await Http.get(`https://discordapp.com/api/oauth2/applications/${applicationId}/assets`)
 	).body as any[];
 	try {
-		return [
-			assets.find((asset) => asset.name === "large")?.name || null,
-			assets.find((asset) => asset.name === "small")?.name || null,
-		];
+		return [assets[0].name, assets[1].name];
 	} catch {
 		return [null, null];
 	}
