@@ -14,8 +14,9 @@ const writeFile = util.promisify(fs.writeFile);
 const USER_TOKENS = [
 	process.env["GRP_APPLICATION_USER_TOKEN"],
 	process.env["GRP_APP_USER_TOKEN_2"],
+	process.env["GRP_APP_USER_TOKEN_3"],
 ];
-const SLEEP_TIME = 75000;
+const SLEEP_TIME = 90000;
 
 function get(url) {
 	return new GenericRequest("GET", url).execute();
