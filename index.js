@@ -5,7 +5,7 @@ const { get, post } = require("powercord/http");
 const { sleep } = require("powercord/util");
 
 const { Settings } = require("./components/Settings");
-const { Http, Logger } = require("./build/service");
+const { Http, Logger, LoDashHost } = require("./build/service");
 const { main } = require("./build/generic-discord-rich-presence");
 
 module.exports = class GenericDiscordRichPresence extends Plugin {
@@ -14,6 +14,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		const { getCurrentUser } = await getModule(["getCurrentUser"]);
 		const { getCurrentGame } = await getModule(["getCurrentGame", "getGameForPID"]);
 		const { getToken } = await getModule(["getToken"]);
+		const _ = await getModule(["add", "chunk", "isEqual"]);
 
 		powercord.api.settings.registerSettings("generic-discord-rich-presence", {
 			category: this.entityID,
@@ -32,14 +33,14 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			return user;
 		};
 
-		const search = /(memoize)/gi;
+		const search = /(isEqual)/gi;
 		const modules = getAllModules(
 			(module) =>
 				Object.keys(module).some((key) => key.match(search)) ||
 				(module.__proto__ && Object.keys(module.__proto__).some((key) => key.match(search))),
 		);
 		this.log(modules);
-		const thing = await getModule(["mem"]);
+		const thing = await getModule(["add", "isEqual"]);
 		setInterval(async () => {
 			this.log(thing);
 		}, 5000);
@@ -83,6 +84,8 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 				post(url).set("Content-Type", contentType).send(data).execute(),
 		});
 
+		LoDashHost.initialize(_);
+
 		Logger.initialize({
 			self: this,
 			log: this.log,
@@ -91,7 +94,10 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			error: this.error,
 		});
 
-		this.closePlugin = await main(getCurrentOkGame, _getAllConnections);
+		this.closePlugin = await main({
+			getCurrentGame: getCurrentOkGame,
+			getAllConnections: _getAllConnections,
+		});
 	}
 
 	pluginWillUnload() {

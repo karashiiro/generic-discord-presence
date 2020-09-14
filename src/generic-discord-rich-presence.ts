@@ -15,10 +15,17 @@ import {
 
 const UPDATE_INTERVAL = 15000;
 
-export async function main(
-	getCurrentGame: GetCurrentGame,
-	getAllConnections: GetAllConnections,
-): Promise<PluginCloseHandle> {
+interface PluginArgs {
+	getCurrentGame: GetCurrentGame;
+	getAllConnections: GetAllConnections;
+}
+
+type PluginCloseHandle = () => void;
+
+export async function main({
+	getCurrentGame,
+	getAllConnections,
+}: PluginArgs): Promise<PluginCloseHandle> {
 	let rpc: GameRPC;
 	let gameInfo: GameInfo;
 	let steamInfo: AccountConnection | null | undefined;
@@ -127,5 +134,3 @@ export async function main(
 		rpc?.stop();
 	};
 }
-
-export type PluginCloseHandle = () => void;
