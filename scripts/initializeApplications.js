@@ -8,7 +8,6 @@ const webp = require("webp-converter");
 const GenericRequest = require("../../../../fake_node_modules/powercord/http/GenericRequest");
 const { sleep } = require("../../../../fake_node_modules/powercord/util");
 
-const readFile = util.promisify(fs.readFile);
 const unlink = util.promisify(fs.unlink);
 const writeFile = util.promisify(fs.writeFile);
 
@@ -24,6 +23,13 @@ function post(url, data, contentType) {
 		.set("Authorization", USER_TOKEN)
 		.send(data)
 		.execute();
+}
+
+async function getApplications() {
+	const res = await new GenericRequest("GET", "https://discord.com/api/v8/applications")
+		.set("Authorization", USER_TOKEN)
+		.execute();
+	return res.body;
 }
 
 async function discordWebpToPngBase64(applicationId, key) {
@@ -47,18 +53,27 @@ async function discordWebpToPngBase64(applicationId, key) {
 }
 
 async function initializeApplications() {
-	const dic = fs.existsSync("dictionary.txt") ? JSON.parse(await readFile("dictionary.txt")) : {};
+	const dic = {};
 
+	// Start from where we left off
+	const existing = await getApplications();
 	const gamesList = JSON.parse(
 		(
 			await get(
 				"https://gist.githubusercontent.com/DeadSix27/b8e377c9fed6d98bff22dcdf8807e207/raw/52d1f2d31be7168a0486a3a355e06a2d751bdc44/gameslist.json",
 			)
 		).raw.toString(),
-	).filter((game) => !Object.keys(dic).includes(game.id));
-	console.log(gamesList.length, "applications to initialize.");
+	);
+	for (const game of existing) {
+		dic[gamesList.find((g) => g.name === game.name).id] = game.id;
+	}
 
-	for (const game of gamesList) {
+	const trimmedGamesList = gamesList.filter(
+		(game) => !existing.map((o) => o.name).includes(game.name),
+	);
+	console.log(trimmedGamesList.length, "applications to initialize.");
+
+	for (const game of trimmedGamesList) {
 		const { id, name, icon, splash } = game;
 		if (id == null || name == null || (splash == null && icon == null)) continue;
 
@@ -146,9 +161,8 @@ async function initializeApplications() {
 		}
 
 		dic[id] = applicationId;
+		await writeFile("dictionary.txt", JSON.stringify(dic));
 	}
-
-	await writeFile("dictionary.txt", JSON.stringify(dic));
 }
 
 initializeApplications();

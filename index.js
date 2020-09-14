@@ -10,16 +10,19 @@ const { main } = require("./build/generic-discord-rich-presence");
 
 module.exports = class GenericDiscordRichPresence extends Plugin {
 	async startPlugin() {
-		powercord.api.settings.registerSettings("generic-discord-rich-presence", {
-			category: this.entityID,
-			label: "Generic Rich Presence",
-			render: Settings,
-		});
-
 		const { getActivities } = await getModule(["getActivities"]);
 		const { getCurrentUser } = await getModule(["getCurrentUser"]);
 		const { getCurrentGame } = await getModule(["getCurrentGame", "getGameForPID"]);
 		const { getToken } = await getModule(["getToken"]);
+
+		powercord.api.settings.registerSettings("generic-discord-rich-presence", {
+			category: this.entityID,
+			label: "Generic Rich Presence",
+			render: (props) => {
+				props.getCurrentGame = getCurrentGame;
+				return Settings(props);
+			},
+		});
 
 		const getCurrentUserAsync = async () => {
 			let user;
@@ -32,17 +35,20 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		const getCurrentOkGame = async (currApplicationId, name) => {
 			const { id } = await getCurrentUserAsync();
 
+			const currentGame = getCurrentGame();
+			if (currentGame == null) return null;
+
 			// Don't include custom statuses
 			const activities = getActivities(id).filter((activity) => activity.type !== 4);
 
 			// Die if Rich Presence is already enabled from another application
-			if (
-				activities.length === 0 ||
-				activities.some((a) => a.name === name && a.application_id !== currApplicationId)
-			)
+			if (activities.some((a) => a.name === name && a.application_id !== currApplicationId))
 				return null;
 
-			return getCurrentGame();
+			if (!this.settings.get(`rpEnabled_${currentGame.name.replace(/\s+/g, "")}`, false))
+				return null;
+
+			return currentGame;
 		};
 
 		const getAllConnections = async () => {
