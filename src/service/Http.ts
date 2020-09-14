@@ -1,25 +1,17 @@
 export class Http {
 	public static get(url: string): Promise<HTTPResponse> {
-		return Http.sInstance.methods!.get(url);
+		return Http.methods!.get(url);
 	}
 
 	public static post(url: string, data: string, contentType: string): Promise<HTTPResponse> {
-		return Http.sInstance.methods!.post(url, data, contentType);
+		return Http.methods!.post(url, data, contentType);
 	}
 
 	public static initialize(methods: HttpMethods) {
-		Http.instance().methods = methods;
+		Http.methods = methods;
 	}
 
-	private static instance(): Http {
-		if (Http.sInstance == null) {
-			Http.sInstance = new Http();
-		}
-		return Http.sInstance;
-	}
-	private static sInstance: Http;
-
-	private methods: HttpMethods | undefined;
+	private static methods: HttpMethods | undefined;
 }
 
 export type HTTPGet = (url: string) => Promise<HTTPResponse>;
