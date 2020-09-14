@@ -4,11 +4,18 @@ const { getModule } = require("powercord/webpack");
 const { get, post } = require("powercord/http");
 const { sleep } = require("powercord/util");
 
+const { Settings } = require("./components/Settings");
 const { Http, Logger } = require("./build/service");
 const { main } = require("./build/generic-discord-rich-presence");
 
 module.exports = class GenericDiscordRichPresence extends Plugin {
 	async startPlugin() {
+		powercord.api.settings.registerSettings("generic-discord-rich-presence", {
+			category: this.entityID,
+			label: "Generic Rich Presence",
+			render: Settings,
+		});
+
 		const { getActivities } = await getModule(["getActivities"]);
 		const { getCurrentUser } = await getModule(["getCurrentUser"]);
 		const { getCurrentGame } = await getModule(["getCurrentGame", "getGameForPID"]);
@@ -22,7 +29,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			return user;
 		};
 
-		const getCurrentUntouchedGame = async (currApplicationId, name) => {
+		const getCurrentOkGame = async (currApplicationId, name) => {
 			const { id } = await getCurrentUserAsync();
 
 			// Don't include custom statuses
@@ -64,10 +71,11 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			error: this.error,
 		});
 
-		this.closePlugin = await main(getCurrentUntouchedGame, getAllConnections);
+		this.closePlugin = await main(getCurrentOkGame, getAllConnections);
 	}
 
 	pluginWillUnload() {
+		powercord.api.settings.unregisterSettings("generic-discord-rich-presence");
 		this.closePlugin();
 	}
 };
