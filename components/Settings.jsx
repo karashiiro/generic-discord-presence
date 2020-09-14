@@ -24,9 +24,18 @@ function Settings({ getSetting, toggleSetting, getCurrentGame }) {
 		<div>
 			<SwitchItem
 				onChange={() => {
+					toggleSetting("rpEnabledAll");
+				}}
+				note={"Toggle Rich Presence for all applications."}
+				value={getSetting("rpEnabledAll", true)}
+			>
+				Global
+			</SwitchItem>
+			<SwitchItem
+				onChange={() => {
 					toggleSetting(`rpEnabled_${currentGame.replace(/\s+/g, "")}`);
 				}}
-				note={`Turn ${currentGame != null ? "off" : "on"} Rich Presence for this game.`}
+				note={"Toggle Rich Presence for this game."}
 				value={
 					currentGame != null
 						? getSetting(`rpEnabled_${currentGame.replace(/\s+/g, "")}`, true)

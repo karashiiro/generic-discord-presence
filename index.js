@@ -33,6 +33,8 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		};
 
 		const getCurrentOkGame = async (currApplicationId, name) => {
+			if (!this.settings.get("rpEnabledAll", true)) return null;
+
 			const { id } = await getCurrentUserAsync();
 
 			const currentGame = getCurrentGame();
