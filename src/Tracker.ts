@@ -40,7 +40,7 @@ export class Tracker<TReturn> extends EventEmitter {
 		while (!this.shouldStop) {
 			const newState = await this.getState();
 
-			if (!_.static.isEqual(this.currentState, newState)) {
+			if (!_.isEqual(this.currentState, newState)) {
 				this.emit("changed", newState);
 				this.currentState = newState;
 			}
