@@ -56,6 +56,12 @@ async function discordWebpToPngBase64(applicationId, key) {
 	});
 }
 
+/**
+ * This function is a selfbot that creates applications from the verified games list that have
+ * proper assets so we can get the fancy Rich Presence images everywhere, and have the application
+ * name be correct. There's no point in running this yourself once the applications are set up,
+ * so this will be removed once it's done running.
+ */
 async function initializeApplications() {
 	const dic = {};
 
@@ -102,11 +108,11 @@ async function initializeApplications() {
 						[b64Small, closeSmall] = await discordWebpToPngBase64(id, smallImageKey);
 					}
 				} catch (err) {
-					console.error(`[${k}] Image processing error!`, err, "Skipping...");
+					console.error(`Image processing error!`, err, "Skipping...");
 					continue;
 				}
 
-				console.log("Creating application for object", name);
+				console.log(`[${k}] Creating application for object`, name);
 				let createRes;
 				try {
 					createRes = await post(
@@ -127,9 +133,11 @@ async function initializeApplications() {
 
 				const applicationId = createRes.body.id;
 
-				// The rate limiting on these endpoints is really harsh; they aren't
-				// supposed to be used for automation at all. Exceeding the rate limit
-				// will bust you for 3 hours (10800 seconds).
+				/**
+				 * The rate limiting on these endpoints is really harsh; they aren't
+				 * supposed to be used for automation at all. Exceeding the rate limit
+				 * will bust you for 3 hours (10800 seconds).
+				 */
 				await sleep(SLEEP_TIME);
 
 				console.log(`[${k}] Uploading large image for object`, name);

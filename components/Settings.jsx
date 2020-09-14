@@ -4,11 +4,12 @@ const { SwitchItem } = require("powercord/components/settings");
 
 const { useEffect, useState } = React;
 
-// I would write this in TypeScript for consistency (wouldn't get Intellisense with
-// Powercord stuff), but it's not worthwhile to jump through the hoops needed to
-// transpile to JSX without installing my own copy of React and doing ../../../../
-// to get to the Powercord components.
-
+/**
+ * I would write this in TypeScript for consistency (wouldn't get Intellisense with
+ * Powercord stuff), but it's not worthwhile to jump through the hoops needed to
+ * transpile to JSX without installing my own copy of React and doing ../../../../
+ * to get to the Powercord components.
+ */
 function Settings({ getSetting, toggleSetting, getCurrentGame }) {
 	let game = getCurrentGame();
 	const [currentGame, setCurrentGame] = useState(game ? game.name : null);

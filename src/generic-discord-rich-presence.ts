@@ -50,9 +50,11 @@ export async function main(
 
 			return profileInfo.game;
 		} catch (err) {
-			// The only reasons why this would fail are Steam's community servers
-			// going down, being unable to reach them, and the website layout changing
-			// significantly.
+			/**
+			 * The only reasons why this would fail are Steam's community servers
+			 * going down, being unable to reach them, and the website layout changing
+			 * significantly.
+			 */
 			Logger.error("Presence fetch failed with error message:", err);
 		}
 	}, UPDATE_INTERVAL);
