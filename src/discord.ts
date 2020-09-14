@@ -1,10 +1,6 @@
 import { Http } from "./service";
 
-import mem from "mem";
-
-export const getApplicationIcon = mem(_getApplicationIcon);
-
-async function _getApplicationIcon(
+export async function getApplicationIcon(
 	applicationId: string,
 ): Promise<[largeImageKey: string | null, smallImageKey: string | null]> {
 	const assets: ApplicationAsset[] = (

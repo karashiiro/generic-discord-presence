@@ -32,20 +32,16 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			return user;
 		};
 
-		const search = /(fetch|get).*(connections)/gi;
+		const search = /(memoize)/gi;
 		const modules = getAllModules(
 			(module) =>
 				Object.keys(module).some((key) => key.match(search)) ||
 				(module.__proto__ && Object.keys(module.__proto__).some((key) => key.match(search))),
 		);
 		this.log(modules);
-		const thing = await getModule(["getAllConnections"]);
+		const thing = await getModule(["mem"]);
 		setInterval(async () => {
-			const { id } = await getCurrentUserAsync();
-
 			this.log(thing);
-			this.log(thing.getAllConnections(id));
-			this.log(await thing.getAllConnections(id));
 		}, 5000);
 
 		const getCurrentOkGame = async (currApplicationId, name) => {
