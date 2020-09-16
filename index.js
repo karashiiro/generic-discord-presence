@@ -33,18 +33,6 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			return user;
 		};
 
-		const search = /(isEqual)/gi;
-		const modules = getAllModules(
-			(module) =>
-				Object.keys(module).some((key) => key.match(search)) ||
-				(module.__proto__ && Object.keys(module.__proto__).some((key) => key.match(search))),
-		);
-		this.log(modules);
-		const thing = await getModule(["add", "isEqual"]);
-		setInterval(async () => {
-			this.log(thing);
-		}, 5000);
-
 		const getCurrentOkGame = async (currApplicationId, name) => {
 			if (!this.settings.get("rpEnabledAll", true)) return null;
 
@@ -60,7 +48,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			if (activities.some((a) => a.name === name && a.application_id !== currApplicationId))
 				return null;
 
-			if (!this.settings.get(`rpEnabled_${currentGame.name.replace(/\s+/g, "")}`, false))
+			if (!this.settings.get(`rpEnabled_${currentGame.name.replace(/\s+/g, "")}`, true))
 				return null;
 
 			return currentGame;
