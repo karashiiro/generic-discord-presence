@@ -1,4 +1,3 @@
-import cheerio from "cheerio";
 import { Http } from "./service";
 
 // Ideally we'd read this from the client memory, but it only seems to be stored in the
@@ -11,25 +10,28 @@ export async function getProfileInfo(userId: string): Promise<BasicProfileInfo |
 	if (resProfile.statusCode === 302) {
 		resProfile = await Http.get(resProfile.headers.location);
 	}
-	const profile = cheerio.load(resProfile.body as string | Buffer);
-	const miniProfileId = profile("div.playerAvatar:nth-child(2)").attr("data-miniprofile");
+	const profile = new DOMParser().parseFromString(resProfile.body.toString(), "text/html");
+	const miniProfileId = profile
+		.querySelector("div.playerAvatar:nth-child(2)")!
+		.getAttribute("data-miniprofile");
 
 	const resMiniProfile = await Http.get(`https://steamcommunity.com/miniprofile/${miniProfileId}`);
-	const miniProfile = cheerio.load(resMiniProfile.body as string | Buffer);
+	const miniProfile = new DOMParser().parseFromString(resMiniProfile.body.toString(), "text/html");
 
+	const persona = miniProfile.querySelector(".persona")!;
 	const basicProfileInfo: BasicProfileInfo = {
-		name: miniProfile(".persona").text(),
-		status: getStatusFromClassName(miniProfile(".persona").attr("class")!.split(" ")[1]),
+		name: persona.textContent!,
+		status: getStatusFromClassName(persona.getAttribute("class")!.split(" ")[1]),
 		requestTimeMs: 0,
 	};
 
 	if (basicProfileInfo.status === "IN_GAME") {
-		let richPresence: string | null = miniProfile(".rich_presence").text();
+		let richPresence: string | null = miniProfile.querySelector(".rich_presence")!.textContent;
 		if (richPresence === "") richPresence = null;
 
 		basicProfileInfo.game = {
-			name: miniProfile(".miniprofile_game_name").text(),
-			state: miniProfile(".game_state").text(),
+			name: miniProfile.querySelector(".miniprofile_game_name")!.textContent!,
+			state: miniProfile.querySelector(".game_state")!.textContent!,
 			richPresence,
 		};
 	}
