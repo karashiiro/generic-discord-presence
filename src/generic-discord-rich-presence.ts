@@ -1,8 +1,7 @@
 import { CLIENT_ID } from "./data";
-import { AccountConnection, GetAllConnections } from "./discord";
 import { GameRPC } from "./GameRPC";
 import { Logger } from "./service";
-import { GameDetails, getProfileInfo } from "./steam";
+import { GameDetails, getProfileInfo, GetSteamId } from "./steam";
 import { Tracker } from "./Tracker";
 import {
 	buildGameInfo,
@@ -17,40 +16,34 @@ const UPDATE_INTERVAL = 15000;
 
 interface PluginArgs {
 	getCurrentGame: GetCurrentGame;
-	getAllConnections: GetAllConnections;
+	getSteamId: GetSteamId;
 }
 
 type PluginCloseHandle = () => void;
 
-export async function main({
-	getCurrentGame,
-	getAllConnections,
-}: PluginArgs): Promise<PluginCloseHandle> {
+export async function main({ getCurrentGame, getSteamId }: PluginArgs): Promise<PluginCloseHandle> {
 	let rpc: GameRPC;
 	let gameInfo: GameInfo;
-	let steamInfo: AccountConnection | null | undefined;
+	let steamId: string | null | undefined;
 
 	let applicationId: string;
 
-	const steam = new Tracker<AccountConnection | null | undefined>(async () => {
-		const connections = await getAllConnections();
-		return connections.find((c) => c.type === "steam");
-	}, UPDATE_INTERVAL);
-	steam.on("changed", (newSteamInfo) => {
-		if (newSteamInfo == null) {
-			steamInfo = null;
+	const steam = new Tracker<string | null | undefined>(getSteamId, UPDATE_INTERVAL);
+	steam.on("changed", (newSteamId) => {
+		if (newSteamId == null) {
+			steamId = null;
 			return;
 		}
 
-		steamInfo = newSteamInfo;
-		Logger.log("Connected to Steam account", steamInfo?.name);
+		steamId = newSteamId;
+		Logger.log("Connected to Steam account", steamId);
 	});
 
 	const steamPresence = new Tracker<GameDetails | null | undefined>(async () => {
-		if (steamInfo == null) return null;
+		if (steamId == null) return null;
 
 		try {
-			const profileInfo = await getProfileInfo(steamInfo.id);
+			const profileInfo = await getProfileInfo(steamId);
 			if (profileInfo == null) return null;
 
 			Logger.debug(profileInfo);

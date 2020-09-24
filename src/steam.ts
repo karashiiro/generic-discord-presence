@@ -1,11 +1,16 @@
-import { Http } from "./service";
+import { Http, HTTPResponse } from "./service";
 
 // Ideally we'd read this from the client memory, but it only seems to be stored in the
 // friends list, which is a separate process from the main client and not always available.
 export async function getProfileInfo(userId: string): Promise<BasicProfileInfo | null> {
 	const now = performance.now();
 
-	let resProfile = await Http.get(`https://steamcommunity.com/profiles/${userId}`);
+	let resProfile: HTTPResponse;
+	if (!isNaN(parseInt(userId))) {
+		resProfile = await Http.get(`https://steamcommunity.com/profiles/${userId}`);
+	} else {
+		resProfile = await Http.get(`https://steamcommunity.com/id/${userId}`);
+	}
 	// If they set a custom URL this 302s, and we need to handle it explicitly.
 	if (resProfile.statusCode === 302) {
 		resProfile = await Http.get(resProfile.headers.location);
@@ -69,3 +74,5 @@ export interface GameDetails {
 
 // "away" is a status in the client, but it doesn't seem to show up in the AJAX response
 export type Status = "OFFLINE" | "ONLINE" | "IN_GAME";
+
+export type GetSteamId = () => string;

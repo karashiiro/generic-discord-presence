@@ -1,6 +1,6 @@
 /* eslint-disable */
 const { Plugin } = require("powercord/entities");
-const { getModule, getAllModules } = require("powercord/webpack");
+const { getModule } = require("powercord/webpack");
 const { get, post } = require("powercord/http");
 const { sleep } = require("powercord/util");
 
@@ -13,7 +13,6 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 		const { getActivities } = await getModule(["getActivities"]);
 		const { getCurrentUser } = await getModule(["getCurrentUser"]);
 		const { getCurrentGame } = await getModule(["getCurrentGame", "getGameForPID"]);
-		const { getToken } = await getModule(["getToken"]);
 		const lodash = await getModule(["add", "chunk", "isEqual"]);
 
 		powercord.api.settings.registerSettings("generic-discord-rich-presence", {
@@ -54,16 +53,8 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 			return currentGame;
 		};
 
-		const _getAllConnections = async () => {
-			// We don't need the return value, just want to be sure we're logged-in so we have a token.
-			await getCurrentUserAsync();
-
-			// There's a Discord function that does this somewhere, but I simply can't find it.
-			return (
-				await get(`https://canary.discordapp.com/api/v8/users/@me/connections`)
-					.set("authorization", getToken())
-					.execute()
-			).body;
+		const getSteamId = () => {
+			return this.settings.get("rpSteamId", "");
 		};
 
 		_.initialize(lodash);
@@ -84,7 +75,7 @@ module.exports = class GenericDiscordRichPresence extends Plugin {
 
 		this.closePlugin = await main({
 			getCurrentGame: getCurrentOkGame,
-			getAllConnections: _getAllConnections,
+			getSteamId: getSteamId,
 		});
 	}
 
